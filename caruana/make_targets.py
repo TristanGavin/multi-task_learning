@@ -55,6 +55,7 @@ def get_data():
     return tasks
 
 data = get_data()
+
 df = pd.DataFrame.from_dict(data)
 df.to_csv('./targets.csv')
 
