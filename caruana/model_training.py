@@ -102,8 +102,8 @@ def train_model(model, dataloaders, targets):
         
     #TODO display the loss
     plt.figure(figsize=(8, 8), dpi=80)
-    plt.plot(train_acc, label="train accuracy", color='dodgerblue', linewidth=1.5)
-    plt.plot(test_acc, label="test accuracy", color='red', linewidth=1.5)
+    plt.plot(train_acc[::10], label="train accuracy", color='dodgerblue', linewidth=1.5)
+    plt.plot(test_acc[::10], label="test accuracy", color='red', linewidth=1.5)
     plt.legend(frameon=False, prop={'size': 22})
     plt.xlabel('Epochs')
     plt.ylabel('% correct') 
