@@ -10,6 +10,7 @@ import matplotlib.pyplot as plt
 import torch.nn.functional as F
 from make_targets import getParity, get_data
 from model_training import train_model, test_model
+import os
 
 ################################################################################################################################
 # DATASETS
@@ -54,6 +55,45 @@ class MultiTask(nn.Module):
         x = torch.sigmoid(self.output(x))   # sigmoid returns probability of being 1
         return x  
 
+
+################################################################################################################################
+# MAKE GRAPHS FUNCITON
+
+def make_graphs(train_acc, test_acc, target_acc, taskname):
+            
+    x = [i for i in range(len(test_acc))]
+    x = x[::10]
+
+    if len(target_acc) > 1: 
+        for idx, target in enumerate(target_acc):
+
+
+            plt.figure(figsize=(8, 8), dpi=80)
+            plt.title(f"task {target}")
+            plt.plot(x, target_acc[target][0][::10], label="train accuracy", color='dodgerblue', linewidth=1.5)
+            plt.plot(x, target_acc[target][1][::10], label="test accuracy", color='red', linewidth=1.5)
+            plt.legend(frameon=False, prop={'size': 22})
+            plt.xlabel('Epochs')
+            plt.ylabel('% correct') 
+            plt.legend(frameon=False)
+            plt.tick_params(axis='both', which='major', labelsize=17)
+            # plt.savefig('./graphs/loss_test.png')
+            plt.show()
+
+
+    plt.figure(figsize=(8, 8), dpi=80)
+    plt.title(taskname)
+    plt.plot(x, train_acc[::10], label="train accuracy", color='dodgerblue', linewidth=1.5)
+    plt.plot(x, test_acc[::10], label="test accuracy", color='red', linewidth=1.5)
+    plt.legend(frameon=False, prop={'size': 22})
+    plt.xlabel('Epochs')
+    plt.ylabel('% correct') 
+    plt.legend(frameon=False)
+    plt.tick_params(axis='both', which='major', labelsize=17)
+    plt.show()
+
+    return
+
 ################################################################################################################################
 # IMPORT DATA
 
@@ -85,32 +125,52 @@ single_task1 = MultiTask(1) # task 1
 single_task2 = MultiTask(1) # task 2
 single_task3 = MultiTask(1) # task 3 
 single_task4 = MultiTask(1) # task 4
-       
+    
 # train individual models
-# train_1loss = train_model(single_task1, dataloaders, [1])
-# train_2loss = train_model(single_task2, dataloaders, [2])
-# train_3loss = train_model(single_task3, dataloaders, [3])
-# train_4loss = train_model(single_task4, dataloaders, [4])
+print("training task 1 (single task learning): ")
+print("----------------------------------------------------")
+train1_acc, test1_acc, target1_acc = train_model(single_task1, dataloaders, [1])
+make_graphs(train1_acc, test1_acc, target1_acc, "task1_STL")
+
+print("training task 2 (single task learning): ")
+print("----------------------------------------------------")
+train2_acc, test2_acc, target2_acc = train_model(single_task2, dataloaders, [2])
+make_graphs(train2_acc, test2_acc, target2_acc, "task2_STL")
+
+print("training task 3 (single task learning): ")
+print("----------------------------------------------------")
+train3_acc, test3_acc, target3_acc = train_model(single_task3, dataloaders, [3])
+make_graphs(train3_acc, test3_acc, target3_acc, "task3_STL")
+
+print("training task 4 (single task learning): ")
+print("----------------------------------------------------")
+train4_acc, test4_acc, target4_acc = train_model(single_task4, dataloaders, [4])
+make_graphs(train4_acc, test4_acc, target4_acc, "task4_STL")
 
 # save models torch.save(model.state_dict()
-# torch.save(single_task1.state_dict(), "./models/single_task1.pth") 
-# torch.save(single_task2.state_dict(), "./models/single_task2.pth") 
-# torch.save(single_task3.state_dict(), "./models/single_task3.pth") 
-# torch.save(single_task4.state_dict(), "./models/single_task4.pth") 
+torch.save(single_task1.state_dict(), "./models/single_task1.pth") 
+torch.save(single_task2.state_dict(), "./models/single_task2.pth") 
+torch.save(single_task3.state_dict(), "./models/single_task3.pth") 
+torch.save(single_task4.state_dict(), "./models/single_task4.pth") 
 
 ################################################################################################################################
 # MULTI-TASK MODELS
-
-# initialize models
+print()
+print()
+# initialize models 
+print("training task 1 and 2 (Multi-task learning): ")
+print("----------------------------------------------------")
 multitask1 = MultiTask(2)
 
 # train models
-train_loss = train_model(multitask1, dataloaders, [1, 2])
+train_acc, test_acc, target_acc = train_model(multitask1, dataloaders, [1, 2])
+
+# make_graphs(train_acc, test_acc, target_acc, "task1_task2_MTL") 
 
 ################################################################################################################################
 # TEST MODEL
+print("----------------------------------------------------")
+print(f"max accuracy target 1 (STL): {max(test1_acc)}")
+print(f"max accuracy target 1 (MTL) {max(target_acc[1][1])}")
 
-test_loss = test_model(single_task1, X_test, [y1_test])
-multi_testloss = test_model(multitask1, X_test, [y1_test, y2_test])
-print(multi_testloss)
-print(test_loss)
+
