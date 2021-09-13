@@ -10,7 +10,7 @@ def train_model(model, dataloaders, targets):
     optimizer = torch.optim.SGD(model.parameters(), lr=0.1)
     # loss_func = torch.nn.MSELoss()
     loss_func = torch.nn.BCELoss()  # Binary cross entropy - (label, probability of being 1)
-    max_iters = 100
+    max_iters = 15000
 
     train_loader = dataloaders[0]
     test_loader = dataloaders[1]

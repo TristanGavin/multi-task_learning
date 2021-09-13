@@ -12,6 +12,9 @@ MTL14 = np.zeros(15000)
 
 
 for idx, filename in enumerate(os.listdir('./')):
+    if filename.startswith('STL'):
+        STL1 = np.load(filename, allow_pickle = True)
+        STL = np.add(STL, STL1)
     if filename.startswith('MTL12'):
         MTL121 = np.load(filename, allow_pickle = True)
         MTL121 = MTL121.item()
@@ -29,14 +32,17 @@ for idx, filename in enumerate(os.listdir('./')):
         MTL14 = np.add(MTL14, MTL141)
 
 
+STL = STL / 4
 MTL12 = MTL12 / 5
 MTL13 = MTL13 / 5
 MTL14 = MTL14 / 5
 
+print(STL)
 print(MTL12)
 print(MTL13)
 print(MTL14)
 
+np.save('./average1', STL)
 np.save('./average12', MTL12)
 np.save('./average13', MTL13)
 np.save('./average14', MTL14)
@@ -46,6 +52,7 @@ x = x[::10]
 
 plt.figure(figsize=(8, 8), dpi=80)
 plt.title("compare accuracy")
+plt.plot(x, STL[::10], label="STL", color='purple', linewidth=1.5)
 plt.plot(x, MTL12[::10], label="MTL12", color="orange", linewidth=1.5)
 plt.plot(x, MTL13[::10], label="task_1_and_3", color='dodgerblue', linewidth=1.5)
 plt.plot(x, MTL14[::10], label="task_1-4", color='red', linewidth=1.5)

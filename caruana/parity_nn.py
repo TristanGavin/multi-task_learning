@@ -100,10 +100,10 @@ def make_graphs(train_acc, test_acc, target_acc, taskname):
 # IMPORT DATA
 
 # format and shuffle data
-dataset = BinaryDataset('./targets2.csv')
+dataset = BinaryDataset('./targets.csv')
 dataset_size = len(dataset)
 valid_split = 0.5
-random_seed = 46
+random_seed = 43
 
 # Creating data indices for training and validation splits:
 indices = list(range(dataset_size))
@@ -165,18 +165,18 @@ multitask2 = MultiTask(2)
 multitask4 = MultiTask(4)
 
 # train models
-print("training task 1 and 2 (Multi-task learning): ")
-print("----------------------------------------------------")
-train_acc, test_acc, target_acc = train_model(multitask1, dataloaders, [1, 2])
-
-
-print("training task 1-4 (Multi-task learning): ")
-print("----------------------------------------------------")
-mtltrain_acc, mtltest_acc, mtltarget_acc = train_model(multitask4, dataloaders, [1, 2, 3, 4])
-
-print("training task 1 and 3 (Multi-task learning): ")
-print("----------------------------------------------------")
-mtltrain3_acc, mtltest3_acc, mtltarget3_acc = train_model(multitask1, dataloaders, [1, 3])
+# print("training task 1 and 2 (Multi-task learning): ")
+# print("----------------------------------------------------")
+# train_acc, test_acc, target_acc = train_model(multitask1, dataloaders, [1, 2])
+# 
+# 
+# print("training task 1-4 (Multi-task learning): ")
+# print("----------------------------------------------------")
+# mtltrain_acc, mtltest_acc, mtltarget_acc = train_model(multitask4, dataloaders, [1, 2, 3, 4])
+# 
+# print("training task 1 and 3 (Multi-task learning): ")
+# print("----------------------------------------------------")
+# mtltrain3_acc, mtltest3_acc, mtltarget3_acc = train_model(multitask1, dataloaders, [1, 3])
 
 
 # make_graphs(train_acc, test_acc, target_acc, "task1_task2_MTL") 
@@ -188,19 +188,16 @@ mtltrain3_acc, mtltest3_acc, mtltarget3_acc = train_model(multitask1, dataloader
 
 print("----------------------------------------------------")
 print(f"max accuracy target 1 (STL): {max(test1_acc)}")
-print(f"max accuracy target 1 (MTL 1 and 2) {max(target_acc[1][1])}")
-print(f"max accuracy target 1 (MTL 1-4): {max(mtltarget_acc[1][1])}") 
+# print(f"max accuracy target 1 (MTL 1 and 2) {max(target_acc[1][1])}")
+# print(f"max accuracy target 1 (MTL 1-4): {max(mtltarget_acc[1][1])}") 
 
-x = [i for i in range(len(test_acc))]
+x = [i for i in range(len(test1_acc))]
 x = x[::10]
 
-print(mtltarget_acc)
+print(test1_acc)
 input('-------')
 
-np.save('./models1/STL1(4)', target1_acc, allow_pickle=True)
-np.save('./models1/MTL12(4)', target_acc, allow_pickle=True)
-np.save('./models1/MTL1234(4)', mtltarget_acc, allow_pickle=True)
-np.save('./models1/MTL13(4)', mtltarget3_acc, allow_pickle=True)
+np.save('./models/STL1(1)', test1_acc, allow_pickle=True)
 
 
 plt.figure(figsize=(8, 8), dpi=80)
