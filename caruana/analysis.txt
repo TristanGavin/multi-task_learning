@@ -1,0 +1,42 @@
+Why do models perform better when learning multiple targets?
+    is it because backpropogation just works better with multiple outputs (even if tasks are unrelated)?
+    or is it because there is some shared knowledge between the tasks?
+
+why does the model not perform well with targets 1-4?
+    negative transfer? the tasks are not well enough related?
+        try making task parity bits 2-6 (bits 7 and 8 ignored)
+        try tasks 1 and 3
+    
+    takes about 10,000 epochs but eventially gets better.
+    why does this one take so long to improve?
+
+    why does the test accuracy keep improving when the train acc is 1.0
+        because (mse is not 1.0! mse is how we are adjusting weights not accuracy)
+
+
+
+Why is STL outperforming MTL now?? :/
+    does mtl learning only improve if there is less training signal?
+    (i.e. less training data)
+    this does appear to be the case. interesting
+
+
+MTL performs even better when bits 3, 4 don't matter.
+    more information to share across.
+
+TODO
+average of 10 different runs.
+    do this for targets.csv and targets1.csv
+    also make one with negative transfer.
+
+implement weighted loss function
+
+
+
+NOTES ON RUNS 
+first run - running with STL 1, MTL 12, MTL 13, and MTL 1234
+20,000 epochs
+random seed 42
+
+second run - (1)
+random seed 43

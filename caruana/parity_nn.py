@@ -17,9 +17,9 @@ import os
 
 class BinaryDataset(Dataset):
 
-    def __init__(self):
+    def __init__(self, filename):
         # data loading
-        df = pd.read_csv('./targets.csv')
+        df = pd.read_csv(filename) # bits 3, 4 don't matter
         X = []
         for i in range(256):
             X.append([int(i) for i in str(format(i, '08b'))])
@@ -81,9 +81,11 @@ def make_graphs(train_acc, test_acc, target_acc, taskname):
             plt.show()
 
 
+    # target_acc[target][train/test][value] 
+
     plt.figure(figsize=(8, 8), dpi=80)
     plt.title(taskname)
-    plt.plot(x, train_acc[::10], label="train accuracy", color='dodgerblue', linewidth=1.5)
+    plt.plot(x, target1_acc[1][0][::10], label="train accuracy", color='dodgerblue', linewidth=1.5)
     plt.plot(x, test_acc[::10], label="test accuracy", color='red', linewidth=1.5)
     plt.legend(frameon=False, prop={'size': 22})
     plt.xlabel('Epochs')
@@ -98,10 +100,10 @@ def make_graphs(train_acc, test_acc, target_acc, taskname):
 # IMPORT DATA
 
 # format and shuffle data
-dataset = BinaryDataset()
+dataset = BinaryDataset('./targets2.csv')
 dataset_size = len(dataset)
-valid_split = 0.2
-random_seed = 42
+valid_split = 0.5
+random_seed = 46
 
 # Creating data indices for training and validation splits:
 indices = list(range(dataset_size))
@@ -130,47 +132,93 @@ single_task4 = MultiTask(1) # task 4
 print("training task 1 (single task learning): ")
 print("----------------------------------------------------")
 train1_acc, test1_acc, target1_acc = train_model(single_task1, dataloaders, [1])
-make_graphs(train1_acc, test1_acc, target1_acc, "task1_STL")
+# make_graphs(train1_acc, test1_acc, target1_acc, "task1_STL")
 
-print("training task 2 (single task learning): ")
-print("----------------------------------------------------")
-train2_acc, test2_acc, target2_acc = train_model(single_task2, dataloaders, [2])
-make_graphs(train2_acc, test2_acc, target2_acc, "task2_STL")
-
-print("training task 3 (single task learning): ")
-print("----------------------------------------------------")
-train3_acc, test3_acc, target3_acc = train_model(single_task3, dataloaders, [3])
-make_graphs(train3_acc, test3_acc, target3_acc, "task3_STL")
-
-print("training task 4 (single task learning): ")
-print("----------------------------------------------------")
-train4_acc, test4_acc, target4_acc = train_model(single_task4, dataloaders, [4])
-make_graphs(train4_acc, test4_acc, target4_acc, "task4_STL")
-
-# save models torch.save(model.state_dict()
-torch.save(single_task1.state_dict(), "./models/single_task1.pth") 
-torch.save(single_task2.state_dict(), "./models/single_task2.pth") 
-torch.save(single_task3.state_dict(), "./models/single_task3.pth") 
-torch.save(single_task4.state_dict(), "./models/single_task4.pth") 
+# print("training task 2 (single task learning): ")
+# print("----------------------------------------------------")
+# train2_acc, test2_acc, target2_acc = train_model(single_task2, dataloaders, [2])
+# make_graphs(train2_acc, test2_acc, target2_acc, "task2_STL")
+# 
+# print("training task 3 (single task learning): ")
+# print("----------------------------------------------------")
+# train3_acc, test3_acc, target3_acc = train_model(single_task3, dataloaders, [3])
+# make_graphs(train3_acc, test3_acc, target3_acc, "task3_STL")
+# 
+# print("training task 4 (single task learning): ")
+# print("----------------------------------------------------")
+# train4_acc, test4_acc, target4_acc = train_model(single_task4, dataloaders, [4])
+# make_graphs(train4_acc, test4_acc, target4_acc, "task4_STL")
+# 
+# # save models torch.save(model.state_dict()
+# torch.save(single_task1.state_dict(), "./models/single_task1.pth") 
+# torch.save(single_task2.state_dict(), "./models/single_task2.pth") 
+# torch.save(single_task3.state_dict(), "./models/single_task3.pth") 
+# torch.save(single_task4.state_dict(), "./models/single_task4.pth") 
 
 ################################################################################################################################
 # MULTI-TASK MODELS
-print()
+
 print()
 # initialize models 
-print("training task 1 and 2 (Multi-task learning): ")
-print("----------------------------------------------------")
 multitask1 = MultiTask(2)
+multitask2 = MultiTask(2)
+multitask4 = MultiTask(4)
 
 # train models
+print("training task 1 and 2 (Multi-task learning): ")
+print("----------------------------------------------------")
 train_acc, test_acc, target_acc = train_model(multitask1, dataloaders, [1, 2])
 
+
+print("training task 1-4 (Multi-task learning): ")
+print("----------------------------------------------------")
+mtltrain_acc, mtltest_acc, mtltarget_acc = train_model(multitask4, dataloaders, [1, 2, 3, 4])
+
+print("training task 1 and 3 (Multi-task learning): ")
+print("----------------------------------------------------")
+mtltrain3_acc, mtltest3_acc, mtltarget3_acc = train_model(multitask1, dataloaders, [1, 3])
+
+
 # make_graphs(train_acc, test_acc, target_acc, "task1_task2_MTL") 
+# make_graphs(mtltrain_acc, mtltest_acc, mtltarget_acc, "MTL")
+
 
 ################################################################################################################################
 # TEST MODEL
+
 print("----------------------------------------------------")
 print(f"max accuracy target 1 (STL): {max(test1_acc)}")
-print(f"max accuracy target 1 (MTL) {max(target_acc[1][1])}")
+print(f"max accuracy target 1 (MTL 1 and 2) {max(target_acc[1][1])}")
+print(f"max accuracy target 1 (MTL 1-4): {max(mtltarget_acc[1][1])}") 
+
+x = [i for i in range(len(test_acc))]
+x = x[::10]
+
+print(mtltarget_acc)
+input('-------')
+
+np.save('./models1/STL1(4)', target1_acc, allow_pickle=True)
+np.save('./models1/MTL12(4)', target_acc, allow_pickle=True)
+np.save('./models1/MTL1234(4)', mtltarget_acc, allow_pickle=True)
+np.save('./models1/MTL13(4)', mtltarget3_acc, allow_pickle=True)
+
+
+plt.figure(figsize=(8, 8), dpi=80)
+plt.title("compare accuracy")
+plt.plot(x, test1_acc[::10], label="STL", color="orange", linewidth=1.5)
+plt.plot(x, target_acc[1][1][::10], label="task_1_and_2", color='dodgerblue', linewidth=1.5)
+plt.plot(x, mtltarget_acc[1][1][::10], label="task_1-4", color='red', linewidth=1.5)
+plt.plot(x, mtltarget3_acc[1][1][::10], label="task_1_and_3", color='purple', linewidth=1.5)
+plt.legend(frameon=False, prop={'size': 22})
+plt.xlabel('Epochs')
+plt.ylabel('% correct') 
+plt.legend(frameon=False)
+plt.tick_params(axis='both', which='major', labelsize=17)
+plt.show()
+
+
+################################################################################################################################
+# SAVE RESULTS
+
 
 

@@ -10,7 +10,7 @@ def train_model(model, dataloaders, targets):
     optimizer = torch.optim.SGD(model.parameters(), lr=0.1)
     # loss_func = torch.nn.MSELoss()
     loss_func = torch.nn.BCELoss()  # Binary cross entropy - (label, probability of being 1)
-    max_iters = 5000
+    max_iters = 100
 
     train_loader = dataloaders[0]
     test_loader = dataloaders[1]
@@ -35,8 +35,8 @@ def train_model(model, dataloaders, targets):
             
             # reshape data for multi targets
             if len(targets) > 1:
-                labels = [data[idx] for idx in targets]
-                labels = torch.cat(labels, 1)
+                labels = [data[idx] for idx in targets] # get labels of given targets
+                labels = torch.cat(labels, 1) 
             else:
                 labels = data[targets[0]]
                 
@@ -65,9 +65,9 @@ def train_model(model, dataloaders, targets):
                     labels = [data[idx] for idx in targets]
                     labels = torch.cat(labels, 1)
                     # calculate acc
-                    for t in range(len(targets)):
-                        targ_acc = y_pred_cls[:,t].eq(labels[:,t]).sum() / float(labels.shape[0])
-                        target_acc[t+1][0].append(targ_acc.item())
+                    for i, t in enumerate(targets):
+                        targ_acc = y_pred_cls[:,i].eq(labels[:,i]).sum() / float(labels.shape[0])
+                        target_acc[t][0].append(targ_acc.item()) # append train accuracy for target t
 
                     tr_acc = y_pred_cls.eq(labels).sum() / (float(labels.shape[0]) * float(labels.shape[1]))
                     train_acc.append(tr_acc.item())
@@ -86,14 +86,13 @@ def train_model(model, dataloaders, targets):
                 y_pred = model(inputs)      
                 y_pred_cls = y_pred.round() # round all targets to 1 or 0
 
-                #TODO seperate accuracy for each target
                 # reshape data for multi targets
                 if len(targets) > 1:
                     labels = [data[idx] for idx in targets]
                     labels = torch.cat(labels, 1)
-                    for t in range(len(targets)):
-                        targ_acc = y_pred_cls[:,t].eq(labels[:,t]).sum() / float(labels.shape[0])
-                        target_acc[t+1][1].append(targ_acc.item())
+                    for i, t in enumerate(targets):
+                        targ_acc = y_pred_cls[:,i].eq(labels[:,i]).sum() / float(labels.shape[0])
+                        target_acc[t][1].append(targ_acc.item()) # append test accuracy for target t
 
                     te_acc = y_pred_cls.eq(labels).sum() / (float(labels.shape[0]) * float(labels.shape[1]))
                     test_acc.append(te_acc.item())
@@ -103,7 +102,7 @@ def train_model(model, dataloaders, targets):
                     test_acc.append(te_acc.item())
 
         
-        if epoch % 50 == 0:
+        if epoch % 100 == 0:
             print(f'Epoch: {epoch} Train Accuracy: {tr_acc} Test Accuracy: {te_acc}')
 
         # early stopping criteria
